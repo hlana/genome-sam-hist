@@ -25,18 +25,59 @@
 
     <h1>Some tests</h1>
 
-    <p>Here I&#39;ll be briefly describing the workflow for carrying out tests to
-SAM files</p>
+    <p>In the following lines I summarize some results obtained after testing the alignment position of four SAM files whose corresponding FASTQ files are part of the MPEG dataset. The FASTQ files are the paired-end human samples:</p>
 
-<h2>Describing workflow</h2>
+<ul>
+<li><strong>NA12878J_HiSeqX_R1.fastq</strong> and <strong>NA12878J_HiSeqX_R2.fastq</strong> (from Garvan replicate J), and</li>
+<li><strong>SRR1231836_1.fastq</strong> and <strong>SRR1231836_2.fastq</strong> (from Illumina SRX514833)</li>
+</ul>
 
-<p>blabla</p>
+<p>The SAM files under consideration are shown at the bottom of the following figure.</p>
 
-<h2>Explanations</h2>
+<figure>
+    <center> <img alt="samfiles" src="SAMfiles.svg" style="width:1000px"> </center>
+</figure>
 
-<p>more blaa</p>
+<p>To run the tests on the content of such files some preprocessing was needed. It is described next.</p>
 
-<h2>Graphs</h2>
+<h2>Preprocessing SAM files</h2>
+
+<p>The general workflow for preparing the files is the following:</p>
+
+<ol>
+<li><p>Selection of all concordant reads with perfect match to the reference.
+A single entry is taken for every paired read that fits this criteria.</p></li>
+<li><p>Extraction of relevant fields in the SAM file. Each entry now contains five values: the read name, position of the read, position of the mate, genome sequence and quality values. At this point the file reduces to approximately half of its initial size.</p></li>
+<li><p>Shuffling of the entries.</p></li>
+<li><p>Random sampling and selection of position fields. Each sample holds 100k entries each composed of two values: the position of the read and the position of its mate.</p></li>
+<li><p>Data framing. The samples are turned into matrices to be manipulated in the R environment.</p></li>
+</ol>
+
+<h2>Processing samples</h2>
+
+<p>A sample is a matrix whose rows represent each a paired read. For each row four values are computed:</p>
+
+<ol>
+<li><p>The distance between the read (r1) and its mate (r2). This is the difference of their positions and its value can be positive or negative. It is positive when r1 is aligned ahead of r2. If the difference is negative then r1 is aligned behind r2.</p></li>
+<li><p>An artificial value for r2, named R2. It is obtained by adding to r1 the position that is observed the most in the sample (mode).</p></li>
+<li><p>An artificial mate for r1 based on comparing R2 to r2. The value R2 is compared against all values of r2 in the sample to find its closest match. The closest match is computed by taking the absolute value of the difference between R2 and r2.</p></li>
+<li><p>The distance between r2 and its artificial mate. This is the difference of their positions.</p></li>
+</ol>
+
+<p>After processing, each sample looks like the matrix in the figure below. The first 13 rows of the matrix are shown.</p>
+
+<figure>
+    <center> <img alt="matrix" src="matrix.png" style="width:500px"> </center>
+</figure>
+
+<h2>Plots</h2>
+
+<p>The distribution of the observed values are shown in the following figures.</p>
+
+<figure>
+     <center> <img alt="garvan_bw2_r2" src="garvan_bw2_r2.jpg" style="width:600px">  </center>
+     <center> <img alt="garvan_bw2_dif" src="garvan_bw2_dif.jpg" style="width:600px">  </center>
+</figure>
 
 <!-- ![face](images.png "kjlkjk")-->
 
