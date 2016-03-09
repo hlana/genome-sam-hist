@@ -60,7 +60,7 @@ A single entry is taken for every paired read that fits this criteria.</p></li>
 <ol>
 <li><p>The distance between the read (r1) and its mate (r2). This is the difference of their positions and its value can be positive or negative. It is positive when r1 is aligned ahead of r2. If the difference is negative then r1 is aligned behind r2.</p></li>
 <li><p>An artificial value for r2, named R2. It is obtained by adding to r1 the position that is observed the most in the sample (mode).</p></li>
-<li><p>An artificial mate for r1 based on comparing R2 to r2. The value R2 is compared against all values of r2 in the sample to find its closest match. The closest match is computed by taking the absolute value of the difference between R2 and r2.</p></li>
+<li><p>An artificial mate for r1 based on comparing R2 to r2. The value R2 is compared against all values of r2 in the sample to find its closest match. The closest match is computed by taking the absolute value of the difference between R2 and r2. The value found as closest match is the artificial mate and its entry is removed from the list of r2 values.  </p></li>
 <li><p>The distance between r2 and its artificial mate. This is the difference of their positions.</p></li>
 </ol>
 
@@ -75,9 +75,43 @@ A single entry is taken for every paired read that fits this criteria.</p></li>
 <p>The distribution of the observed values are shown in the following figures.</p>
 
 <figure>
-     <center> <img alt="garvan_bw2_r2" src="garvan_bw2_r2.jpg" style="width:600px">  </center>
-     <center> <img alt="garvan_bw2_dif" src="garvan_bw2_dif.jpg" style="width:600px">  </center>
+     <left> <img alt="r1-garvan" src="r1-garvan.svg" style="width:700px">  </left>
+     <right> <img alt="r1-illum" src="r1-illum.svg" style="width:700px">  </right>
+     <left> <img alt="r2-garvan" src="r2-garvan.svg" style="width:700px">  </left>
+     <right> <img alt="r2-illum" src="r2-illum.svg" style="width:700px">  </right>
+     <left> <img alt="r2r1-garvan" src="r2r1-garvan.svg" style="width:700px">  </left>
+     <right> <img alt="r2r1-illum" src="r2r1-illum.svg" style="width:700px">  </right>     
 </figure>
+
+<h2>more plots</h2>
+
+<figure>
+     <left> <img alt="hist_r2-r1" src="hist_r2-r1.svg" style="width:600px">  </left>
+     <right> <img alt="hist_pos" src="hist_pos.svg" style="width:600px">  </right>
+     <left> <img alt="hist_pool" src="hist_pool.svg" style="width:600px">  </left>
+     <right> <img alt="hist_x" src="hist_x.svg" style="width:600px">  </right>   
+</figure>
+
+<figure>  
+     <center> <img alt="error_shape_ingeneral" src="error_shape_ingeneral.svg" style="width:600px">  </center> 
+     <img alt="error_s1" src="error_s1.svg" style="width:400px"> <img alt="error_s2" src="error_s2.svg" style="width:400px"> 
+     <img alt="error_s3" src="error_s3.svg" style="width:400px"> <img alt="error_s4" src="error_s4.svg" style="width:400px"> 
+     <img alt="error_s5" src="error_s5.svg" style="width:400px"> <img alt="error_s6" src="error_s6.svg" style="width:400px">      
+     <img alt="error_s7" src="error_s7.svg" style="width:400px"> <img alt="error_s8" src="error_s8.svg" style="width:400px">      
+     <img alt="error_s9" src="error_s9.svg" style="width:400px"> <img alt="error_s10" src="error_s10.svg" style="width:400px">      
+     <img alt="error_s11" src="error_s11.svg" style="width:400px"> <img alt="error_s12" src="error_s12.svg" style="width:400px">      
+     <img alt="error_s13" src="error_s13.svg" style="width:400px"> <img alt="error_s14" src="error_s14.svg" style="width:400px">      
+     <img alt="error_s15" src="error_s15.svg" style="width:400px"> <img alt="error_s16" src="error_s16.svg" style="width:400px">      
+     <img alt="error_s17" src="error_s17.svg" style="width:400px"> <img alt="error_s18" src="error_s18.svg" style="width:400px">      
+     <img alt="error_s19" src="error_s19.svg" style="width:400px"> <img alt="error_s20" src="error_s20.svg" style="width:400px">      
+     <img alt="error_s21" src="error_s21.svg" style="width:400px"> <img alt="error_s22" src="error_s22.svg" style="width:400px">      
+     <img alt="error_s23" src="error_s23.svg" style="width:400px"> <img alt="error_s24" src="error_s24.svg" style="width:400px"> 
+     <img alt="error_s25" src="error_s25.svg" style="width:400px"> <img alt="error_s26" src="error_s26.svg" style="width:400px">
+     <img alt="error_s27" src="error_s27.svg" style="width:400px"> <img alt="error_s28" src="error_s28.svg" style="width:400px"> 
+</figure>
+
+<!--      <right> <img alt="" src="" style="width:700px">  </right> 
+ -->
 
 <!-- ![face](images.png "kjlkjk")-->
 
