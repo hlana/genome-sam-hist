@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+    <head>
+       <meta charset="utf-8">  
+       <title>Some tests</title>
+       <style>
+       body {
+       		font-family: Arial, Helvetica, sans-serif;
+       		font-size: 100%;
+       		margin-left: 50px;
+       		margin-right: 50px;
+       }
+       h1,h2 {
+       		font-family: "Courier";
+       }
+       h2 {
+       		font-size: 1.6em;
+       }
+		</style>
+       <!-- 
+       <link rel="stylesheet" href="/genome-sam-hist/css/main.css" > 
+ 		-->    
+ 	</head>
+    <body>
+
+    <h1>Some tests</h1>
+
+    <p>In the following lines I summarize some results obtained after testing the alignment position of four SAM files whose corresponding FASTQ files are part of the MPEG dataset. The FASTQ files are the paired-end human samples:</p>
+
+<ul>
+<li><strong>NA12878J_HiSeqX_R1.fastq</strong> and <strong>NA12878J_HiSeqX_R2.fastq</strong> (from Garvan replicate J), and</li>
+<li><strong>SRR1231836_1.fastq</strong> and <strong>SRR1231836_2.fastq</strong> (from Illumina SRX514833)</li>
+</ul>
+
+<p>The SAM files under consideration are shown at the bottom of the following figure.</p>
+
+<figure>
+    <center> <img alt="samfiles" src="SAMfiles.svg" style="width:1000px"> </center>
+</figure>
+
+<p>To run the tests on the content of such files some preprocessing was needed. It is described next.</p>
+
+<h2>Preprocessing SAM files</h2>
+
+<p>The general workflow for preparing the files is the following:</p>
+
+<ol>
+<li><p>Selection of all concordant reads with perfect match to the reference.
+A single entry is taken for every paired read that fits this criteria.</p></li>
+<li><p>Extraction of relevant fields in the SAM file. Each entry now contains five values: the read name, position of the read, position of the mate, genome sequence and quality values. At this point the file reduces to approximately half of its initial size.</p></li>
+<li><p>Shuffling of the entries.</p></li>
+<li><p>Random sampling and selection of position fields. Each sample holds 100k entries each composed of two values: the position of the read and the position of its mate.</p></li>
+<li><p>Data framing. The samples are turned into matrices to be manipulated in the R environment.</p></li>
+</ol>
+
+<h2>Processing samples</h2>
+
+<p>A sample is a matrix whose rows represent each a paired read. For each row four values are computed:</p>
+
+<ol>
+<li><p>The distance between the read (r1) and its mate (r2). This is the difference of their positions and its value can be positive or negative. It is positive when r1 is aligned ahead of r2. If the difference is negative then r1 is aligned behind r2.</p></li>
+<li><p>An artificial value for r2, named R2. It is obtained by adding to r1 the position that is observed the most in the sample (mode).</p></li>
+<li><p>An artificial mate for r1 based on comparing R2 to r2. The value R2 is compared against all values of r2 in the sample to find its closest match. The closest match is computed by taking the absolute value of the difference between R2 and r2. The value found as closest match is the artificial mate and its entry is removed from the list of r2 values.  </p></li>
+<li><p>The distance between r2 and its artificial mate. This is the difference of their positions.</p></li>
+</ol>
+
+<p>After processing, each sample looks like the matrix in the figure below. The first 13 rows of the matrix are shown.</p>
+
+<figure>
+    <center> <img alt="matrix" src="matrix.png" style="width:500px"> </center>
+</figure>
+
+<h2>Plots</h2>
+
+<p>The distribution of the observed values are shown in the following figures.</p>
+
+<figure>
+     <left> <img alt="r1-garvan" src="r1-garvan.svg" style="width:700px">  </left>
+     <right> <img alt="r1-illum" src="r1-illum.svg" style="width:700px">  </right>
+     <left> <img alt="r2-garvan" src="r2-garvan.svg" style="width:700px">  </left>
+     <right> <img alt="r2-illum" src="r2-illum.svg" style="width:700px">  </right>
+     <left> <img alt="r2r1-garvan" src="r2r1-garvan.svg" style="width:700px">  </left>
+     <right> <img alt="r2r1-illum" src="r2r1-illum.svg" style="width:700px">  </right>     
+</figure>
+
+<h2>more plots</h2>
+
+<figure>
+     <left> <img alt="hist_r2-r1" src="hist_r2-r1.svg" style="width:600px">  </left>
+     <right> <img alt="hist_pos" src="hist_pos.svg" style="width:600px">  </right>
+     <left> <img alt="hist_pool" src="hist_pool.svg" style="width:600px">  </left>
+</figure>
+
+<figure>  
+     <img alt="e2_s1" src="e2_s1.svg" style="width:400px"> <img alt="e2_s7" src="e2_s7.svg" style="width:400px">
+     <img alt="e2_s2" src="e2_s2.svg" style="width:400px">       <img alt="e2_s8" src="e2_s8.svg" style="width:400px"> 
+
+<img alt="e2_s3" src="e2_s3.svg" style="width:400px">
+      <img alt="e2_s9" src="e2_s9.svg" style="width:400px">  <img alt="e2_s4" src="e2_s4.svg" style="width:400px">
+      <img alt="e2_s10" src="e2_s10.svg" style="width:400px"> <img alt="e2_s5" src="e2_s5.svg" style="width:400px"> 
+     <img alt="e2_s11" src="e2_s11.svg" style="width:400px">  <img alt="e2_s6" src="e2_s6.svg" style="width:400px"> 
+     <img alt="e2_s12" src="e2_s12.svg" style="width:400px"> 
+               <img alt="e2_s13" src="e2_s13.svg" style="width:400px"> 
+ </figure>
+
+<!-- <figure>  
+     <center> <img alt="error_shape_ingeneral" src="error_shape_ingeneral.svg" style="width:600px">  </center> 
+     <img alt="error_s1" src="error_s1.svg" style="width:400px"> <img alt="error_s2" src="error_s2.svg" style="width:400px"> 
+     <img alt="error_s3" src="error_s3.svg" style="width:400px"> <img alt="error_s4" src="error_s4.svg" style="width:400px"> 
+     <img alt="error_s5" src="error_s5.svg" style="width:400px"> <img alt="error_s6" src="error_s6.svg" style="width:400px">      
+     <img alt="error_s7" src="error_s7.svg" style="width:400px"> <img alt="error_s8" src="error_s8.svg" style="width:400px">      
+     <img alt="error_s9" src="error_s9.svg" style="width:400px"> <img alt="error_s10" src="error_s10.svg" style="width:400px">      
+     <img alt="error_s11" src="error_s11.svg" style="width:400px"> <img alt="error_s12" src="error_s12.svg" style="width:400px">      
+     <img alt="error_s13" src="error_s13.svg" style="width:400px"> <img alt="error_s14" src="error_s14.svg" style="width:400px">      
+     <img alt="error_s15" src="error_s15.svg" style="width:400px"> <img alt="error_s16" src="error_s16.svg" style="width:400px">      
+     <img alt="error_s17" src="error_s17.svg" style="width:400px"> <img alt="error_s18" src="error_s18.svg" style="width:400px">      
+     <img alt="error_s19" src="error_s19.svg" style="width:400px"> <img alt="error_s20" src="error_s20.svg" style="width:400px">      
+     <img alt="error_s21" src="error_s21.svg" style="width:400px"> <img alt="error_s22" src="error_s22.svg" style="width:400px">      
+     <img alt="error_s23" src="error_s23.svg" style="width:400px"> <img alt="error_s24" src="error_s24.svg" style="width:400px"> 
+     <img alt="error_s25" src="error_s25.svg" style="width:400px"> <img alt="error_s26" src="error_s26.svg" style="width:400px">
+     <img alt="error_s27" src="error_s27.svg" style="width:400px"> <img alt="error_s28" src="error_s28.svg" style="width:400px"> 
+</figure> -->
+
+<!--      <right> <img alt="" src="" style="width:700px">  </right> 
+ -->
+
+<!-- ![face](images.png "kjlkjk")-->
+
+<!-- <figure>
+    <img src="images.png" alt="1">
+    <img src="images.png" alt="1">
+    <img src="images.png" alt="1">
+    <figcaption>Image Caption ncklmkslcmkdlmsckl klmkl </figcaption>
+</figure> -->
+
+
+</body>
+</html>
+
+
