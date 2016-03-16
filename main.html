@@ -25,56 +25,130 @@
 
     <h1>Some tests</h1>
 
-    <p>In the following lines I summarize some results obtained after testing the alignment position of four SAM files whose corresponding FASTQ files are part of the MPEG dataset. The FASTQ files are the paired-end human samples:</p>
+    <!-- In the following lines I summarize some results obtained after testing the alignment position of four SAM files whose corresponding FASTQ files are part of the MPEG dataset. The FASTQ files are the paired-end human samples:
 
-<ul>
-<li><strong>NA12878J_HiSeqX_R1.fastq</strong> and <strong>NA12878J_HiSeqX_R2.fastq</strong> (from Garvan replicate J), and</li>
-<li><strong>SRR1231836_1.fastq</strong> and <strong>SRR1231836_2.fastq</strong> (from Illumina SRX514833)</li>
-</ul>
+- __NA12878J\_HiSeqX_R1.fastq__ and __NA12878J\_HiSeqX_R2.fastq__ (from Garvan replicate J), and
+- __SRR1231836\_1.fastq__ and __SRR1231836\_2.fastq__ (from Illumina SRX514833)
 
-<p>The SAM files under consideration are shown at the bottom of the following figure.</p>
+The SAM files under consideration are shown at the bottom of the following figure.
 
 <figure>
     <center> <img alt="samfiles" src="SAMfiles.svg" style="width:1000px"> </center>
 </figure>
 
-<p>To run the tests on the content of such files some preprocessing was needed. It is described next.</p>
+To run the tests on the content of such files some preprocessing was needed. It is described next.
 
-<h2>Preprocessing SAM files</h2>
 
-<p>The general workflow for preparing the files is the following:</p>
+## Preprocessing SAM files
 
-<ol>
-<li><p>Selection of all concordant reads with perfect match to the reference.
-A single entry is taken for every paired read that fits this criteria.</p></li>
-<li><p>Extraction of relevant fields in the SAM file. Each entry now contains five values: the read name, position of the read, position of the mate, genome sequence and quality values. At this point the file reduces to approximately half of its initial size.</p></li>
-<li><p>Shuffling of the entries.</p></li>
-<li><p>Random sampling and selection of position fields. Each sample holds 100k entries each composed of two values: the position of the read and the position of its mate.</p></li>
-<li><p>Data framing. The samples are turned into matrices to be manipulated in the R environment.</p></li>
-</ol>
+The general workflow for preparing the files is the following:
 
-<h2>Processing samples</h2>
+1. Selection of all concordant reads with perfect match to the reference.
+A single entry is taken for every paired read that fits this criteria.
 
-<p>A sample is a matrix whose rows represent each a paired read. For each row four values are computed:</p>
+2. Extraction of relevant fields in the SAM file. Each entry now contains five values: the read name, position of the read, position of the mate, genome sequence and quality values. At this point the file reduces to approximately half of its initial size.
 
-<ol>
-<li><p>The distance between the read (r1) and its mate (r2). This is the difference of their positions and its value can be positive or negative. It is positive when r1 is aligned ahead of r2. If the difference is negative then r1 is aligned behind r2.</p></li>
-<li><p>An artificial value for r2, named R2. It is obtained by adding to r1 the position that is observed the most in the sample (mode).</p></li>
-<li><p>An artificial mate for r1 based on comparing R2 to r2. The value R2 is compared against all values of r2 in the sample to find its closest match. The closest match is computed by taking the absolute value of the difference between R2 and r2. The value found as closest match is the artificial mate and its entry is removed from the list of r2 values.  </p></li>
-<li><p>The distance between r2 and its artificial mate. This is the difference of their positions.</p></li>
-</ol>
+3. Shuffling of the entries.
 
-<p>After processing, each sample looks like the matrix in the figure below. The first 13 rows of the matrix are shown.</p>
+4. Random sampling and selection of position fields. Each sample holds 100k entries each composed of two values: the position of the read and the position of its mate.
+
+5. Data framing. The samples are turned into matrices to be manipulated in the R environment.
+
+
+## Processing samples
+
+A sample is a matrix whose rows represent each a paired read. For each row four values are computed:
+
+1. The distance between the read (r1) and its mate (r2). This is the difference of their positions and its value can be positive or negative. It is positive when r1 is aligned ahead of r2. If the difference is negative then r1 is aligned behind r2.
+
+2. An artificial value for r2, named R2. It is obtained by adding to r1 the position that is observed the most in the sample (mode).
+
+3. An artificial mate for r1 based on comparing R2 to r2. The value R2 is compared against all values of r2 in the sample to find its closest match. The closest match is computed by taking the absolute value of the difference between R2 and r2. The value found as closest match is the artificial mate and its entry is removed from the list of r2 values.  
+
+4. The distance between r2 and its artificial mate. This is the difference of their positions.
+
+After processing, each sample looks like the matrix in the figure below. The first 13 rows of the matrix are shown.
+ -->
+
+<p><strong>Input :</strong> Two vectors, r1 and r2, holding the positions of paired reads. This is the input matrix.</p>
 
 <figure>
-    <center> <img alt="matrix" src="matrix.png" style="width:500px"> </center>
+        <left> <img alt="inmatrix" src="inmatrix.png" style="width:110px"> </left>
 </figure>
+
+<p><strong>Output :</strong>  Vector of discrepancy between the real and an artificial value of r1. This is the error vector r1-mate
+<figure>
+        <right> <img alt="outmatrix" src="outmatrix.png" style="width:300px"> </right>
+</figure></p>
+
+<h2>Summary of processing</h2>
+
+<ol>
+<li><p>Compute <strong>x = |r2 - r1|</strong> for every entry in the input matrix</p></li>
+<li><p>Select an <em>appropriate</em> value for x</p></li>
+<li><p>Compute R1 for every entry in the input matrix</p>
+
+<ul>
+<li><strong>R1 = r2 - x, r2 - r1 &gt; 0</strong></li>
+<li><strong>R1 = r2 + x, otherwise</strong></li>
+</ul></li>
+<li><p>Find the &quot;artificial mate&quot; by looking for the closest match to R1 in vector r1</p></li>
+<li><p>Compute the error vector <strong>r1 - mate</strong></p></li>
+</ol>
+
+<hr>
+
+<p>The problem is then to find the value of x such that the error is the minimum.</p>
+
+<hr>
 
 <h2>Plots</h2>
 
-<p>The distribution of the observed values are shown in the following figures.</p>
+<p>The distribution of <strong>r2-r1</strong> along with error plots for selected values are shown below.</p>
 
 <figure>
+     <center> <img alt="hist_r2-r1_921" src="hist_r2-r1_921.svg" style="width:600px"> </center>
+     <left> <img alt="x=155" src="x=155.svg" style="width:500px">  </left>
+     <right> <img alt="x=175" src="x=175.svg" style="width:500px">  </right>
+     <left> <img alt="x=200" src="x=200.svg" style="width:500px">  </left>
+</figure>
+
+<figure>
+     <center> <img alt="hist_r2-r1_655" src="hist_r2-r1_655.svg" style="width:600px"> </center>
+     <left> <img alt="x=205" src="x=205.svg" style="width:500px">  </left>
+     <right> <img alt="x=215" src="x=215.svg" style="width:500px">  </right>
+     <left> <img alt="x=240" src="x=245.svg" style="width:500px">  </left>
+</figure>
+
+<figure>
+     <center> <img alt="hist_r2-r1_320" src="hist_r2-r1_320.svg" style="width:600px"> </center>
+     <left> <img alt="x=255" src="x=255.svg" style="width:500px">  </left>
+     <right> <img alt="x=275" src="x=275.svg" style="width:500px">  </right>
+     <left> <img alt="x=300" src="x=300.svg" style="width:500px">  </left>
+</figure>
+
+<figure>
+     <center> <img alt="hist_r2-r1_96" src="hist_r2-r1_96.svg" style="width:600px"> </center>
+     <right> <img alt="x=305" src="x=305.svg" style="width:500px">  </right>
+     <right> <img alt="x=325" src="x=325.svg" style="width:500px">  </right>
+     <right> <img alt="x=350" src="x=350.svg" style="width:500px">  </right>
+</figure>
+
+<figure>
+     <center> <img alt="hist_r2-r1_31" src="hist_r2-r1_31.svg" style="width:600px"> </center>
+     <right> <img alt="x=356" src="x=356.svg" style="width:500px">  </right>
+     <right> <img alt="x=377" src="x=377.svg" style="width:500px">  </right>
+     <right> <img alt="x=388" src="x=388.svg" style="width:500px">  </right>
+</figure>
+
+<figure>
+     <center> <img alt="hist_r2-r1_5" src="hist_r2-r1_5.svg" style="width:600px"> </center>
+     <right> <img alt="x=401" src="x=356.svg" style="width:500px">  </right>
+     <right> <img alt="x=418" src="x=418.svg" style="width:500px">  </right>
+     <right> <img alt="x=433" src="x=433.svg" style="width:500px">  </right>
+</figure>
+
+<!-- <figure>
      <left> <img alt="r1-garvan" src="r1-garvan.svg" style="width:700px">  </left>
      <right> <img alt="r1-illum" src="r1-illum.svg" style="width:700px">  </right>
      <left> <img alt="r2-garvan" src="r2-garvan.svg" style="width:700px">  </left>
@@ -83,15 +157,15 @@ A single entry is taken for every paired read that fits this criteria.</p></li>
      <right> <img alt="r2r1-illum" src="r2r1-illum.svg" style="width:700px">  </right>     
 </figure>
 
-<h2>more plots</h2>
+## more plots
 
 <figure>
      <left> <img alt="hist_r2-r1" src="hist_r2-r1.svg" style="width:600px">  </left>
      <right> <img alt="hist_pos" src="hist_pos.svg" style="width:600px">  </right>
      <left> <img alt="hist_pool" src="hist_pool.svg" style="width:600px">  </left>
-</figure>
+</figure> -->
 
-<figure>  
+<!-- <figure>  
      <center> <img alt="e2_s1" src="e2_s1.svg" style="width:400px"> <img alt="e2_points_1" src="e2_points_1.svg" style="width:400px"> </center>
      <center> <img alt="e2_s7" src="e2_s7.svg" style="width:400px"> <img alt="e2_points_7" src="e2_points_7.svg" style="width:400px">  </center>
      <center> <img alt="e2_s2" src="e2_s2.svg" style="width:400px"> <img alt="e2_points_2" src="e2_points_2.svg" style="width:400px"> </center>
@@ -106,7 +180,7 @@ A single entry is taken for every paired read that fits this criteria.</p></li>
      <center> <img alt="e2_s12" src="e2_s12.svg" style="width:400px"> <img alt="e2_points_12" src="e2_points_12.svg" style="width:400px"> </center>
      <center> <img alt="e2_s13" src="e2_s13.svg" style="width:400px"> <img alt="e2_points_13" src="e2_points_13.svg" style="width:400px"> </center>
      
- </figure>
+ </figure> -->
 
 <!-- <figure>  
      <center> <img alt="error_shape_ingeneral" src="error_shape_ingeneral.svg" style="width:600px">  </center> 
